@@ -53,7 +53,7 @@ func main() {
 			views.SqlParsePre(myApp)
 		}),
 			widget.NewButton("解析", func() {
-
+				views.ParseSql(myApp)
 			})),
 	)
 	sqlParseContent.Resize(fyne.NewSize(300, 200))

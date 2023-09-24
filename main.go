@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"xiaosheng/views"
 )
@@ -38,15 +39,27 @@ func main() {
 	go views.StartClipboardListener(resultEntry)
 	madeByLabel.TextStyle = customTextStyle
 
-	content := container.NewVBox(
+	content := container.New(
+		layout.NewVBoxLayout(),
 		widget.NewLabel("选择是否监听剪贴板："),
 		checkBox,
 		resultEntry, // 添加文本框
 		madeByLabel,
 	)
+	content.Resize(fyne.NewSize(300, 200))
+	sqlParseContent := container.New(layout.NewVBoxLayout(),
+		widget.NewLabel("sql输入："),
+		container.NewHBox(widget.NewButton("解析 ", func() {
+			views.SqlParsePre(myApp)
+		}),
+			widget.NewButton("解析", func() {
 
-	myWindow.SetContent(content)
-	myWindow.Resize(fyne.NewSize(300, 200))
+			})),
+	)
+	sqlParseContent.Resize(fyne.NewSize(300, 200))
+
+	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, sqlParseContent))
+	myWindow.Resize(fyne.NewSize(600, 200))
 	myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()
 }

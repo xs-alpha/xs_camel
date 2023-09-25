@@ -70,51 +70,58 @@ var sqlTypeMap = map[string]string{
 
 // SqlToGo converts a sql create statement to Go struct
 // sqlStmt for sql create statement, outputPkg for output directory
-func SqlToGo(sqlStmt string, outputPkg string) (string, error) {
+func SqlToGo(sqlStmt string, outputPkg string) ([]string, error) {
 	statement, err := sqlparser.ParseStrictDDL(sqlStmt)
 	if err != nil {
 		fmt.Println("errFunc")
-		return "", err
+		return []string{}, err
 	}
 	stmt, ok := statement.(*sqlparser.DDL)
 	if !ok {
-		return "", fmt.Errorf("input sql is not a create statment")
+		return []string{}, fmt.Errorf("input sql is not a create statment")
 	}
 	// convert to Go struct
 	tableName := stmt.NewName.Name.String()
 	fmt.Println("convert to go---------------")
 	res, err := stmtToGo(stmt, tableName, outputPkg)
 	if err != nil {
-		return "", err
+		return []string{}, err
 	}
 	return res, nil
 }
 
-func stmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) (string, error) {
+func stmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) ([]string, error) {
 	builder := strings.Builder{}
 
-	header := fmt.Sprintf("package %s\n", pkgName)
+	// header := fmt.Sprintf("package %s\n", pkgName)
 
 	structName := snakeCaseToCamel(tableName)
 	structStart := fmt.Sprintf("type %s struct { \n", structName)
 	builder.WriteString(structStart)
+	ret:=make([]string,0)
 	for _, col := range stmt.TableSpec.Columns {
 		columnType := col.Type.Type
 
 		goType := sqlTypeMap[columnType]
 
 		field := snakeCaseToCamel(col.Name.String())
+		retStr:= field+", "+goType
 		comment := col.Type.Comment
 		if comment == nil {
 			builder.WriteString(fmt.Sprintf("\t%s\t%s\t\n", field, goType))
 		} else {
 			builder.WriteString(fmt.Sprintf("\t%s\t%s\t`comment:\"%s\"` \n",
 				field, goType, string(comment.Val)))
+			retStr=retStr+", "+string(comment.Val)
 		}
+		if (retStr==""){
+			continue
+		}
+		ret = append(ret, retStr)
 	}
 	builder.WriteString("}\n")
 
-	return header + builder.String(), nil
+	return ret, nil
 }
 
 // In sql, table name often is snake_case
@@ -174,5 +181,9 @@ func ParseSql(app fyne.App) {
 		return
 	}
 	// print result
-	fmt.Println("res" + res)
+	for _, v := range res {
+		fmt.Println("res" + v)
+	}
+	// 遍历原始切片，筛选出非空字符串并添加到新的切片中
+	SqlColumns = res
 }

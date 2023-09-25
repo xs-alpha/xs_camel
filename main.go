@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"xiaosheng/views"
 )
+var listBox *widget.CheckGroup
 
 func main() {
 	myApp := app.New()
@@ -46,20 +47,29 @@ func main() {
 		resultEntry, // 添加文本框
 		madeByLabel,
 	)
-	content.Resize(fyne.NewSize(300, 200))
+	content.Resize(fyne.NewSize(200, 200))
+
 	sqlParseContent := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("sql输入："),
-		container.NewHBox(widget.NewButton("解析 ", func() {
+		container.NewHBox(widget.NewButton("输入 ", func() {
 			views.SqlParsePre(myApp)
 		}),
-			widget.NewButton("解析", func() {
-				views.ParseSql(myApp)
-			})),
+		widget.NewButton("解析", func() {
+			views.ParseSql(myApp)
+		}),
+		// widget.NewLabel("———————————"),
+	),
 	)
-	sqlParseContent.Resize(fyne.NewSize(300, 200))
 
-	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, sqlParseContent))
-	myWindow.Resize(fyne.NewSize(600, 200))
+	listBox:=widget.NewCheckGroup(views.SqlColumns, func(selected []string) {
+		// 处理选择的选项
+		fmt.Println("Selected:", selected)
+	})
+	csqlbox:=container.New(layout.NewVBoxLayout(),sqlParseContent,listBox)
+	csqlbox.Resize(fyne.NewSize(300,300))
+	
+	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, csqlbox))
+	myWindow.Resize(fyne.NewSize(500, 300))
 	myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()
 }

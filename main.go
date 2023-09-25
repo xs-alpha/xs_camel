@@ -61,14 +61,17 @@ func main() {
 		}),
 			widget.NewButton("解析", func() {
 				views.ParseSql(myApp)
-				listBox.Options = views.SqlColumns
 				listBox.Show()
-				myWindow.Content().Refresh()
+				flushColumnsToListBox(myWindow)
 			}),
 			widget.NewButton("生成", func() {
 
 			}),
-			// widget.NewLabel("———————————"),
+			widget.NewButton("clear", func() {
+				views.SqlColumns = []string{}
+				views.SqlStatement = ""
+				flushColumnsToListBox(myWindow)
+			}),
 			listBox,
 		))
 
@@ -86,11 +89,7 @@ func main() {
 	myWindow.ShowAndRun()
 }
 
-func createListBox(get []string) *widget.CheckGroup {
-	listBox := widget.NewCheckGroup(get, func(selected []string) {
-		// 处理选择的选项
-		fmt.Println("Selected:", selected)
-	})
-
-	return listBox
+func flushColumnsToListBox(myWindow fyne.Window) {
+	listBox.Options = views.SqlColumns
+	myWindow.Content().Refresh()
 }

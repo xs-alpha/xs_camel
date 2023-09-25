@@ -9,5 +9,16 @@ create table `accessory_price_query`(
 `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 PRIMARY KEY (`accessory_price_query_id`)
-)ENGINE=InnoDB   COMMENT='配件价格查询表'
+)ENGINE=InnoDB   COMMENT='配件价格查询表';
 
+
+
+11  22  33  444 
+22  33  44  55
+
+11
+22
+33
+44
+5555
+66

@@ -8,12 +8,11 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"xiaosheng/tools"
 	"xiaosheng/views"
 )
 
 var listBox *widget.CheckGroup
-
-// views.SqlColumns 切片的值是会更新的，要求页面也定时更新
 
 func main() {
 	myApp := app.New()
@@ -65,7 +64,18 @@ func main() {
 				flushColumnsToListBox(myWindow)
 			}),
 			widget.NewButton("生成", func() {
+				tw := myApp.NewWindow("target")
+				wet := widget.NewMultiLineEntry()
+				element := tools.GetExcelElement(views.SelectedRows)
+				wet.SetText(element)
+				wet.SetMinRowsVisible(20)
 
+				box := container.NewVBox(wet, widget.NewButton("复制", func() {
+
+				}))
+				tw.SetContent(box)
+				tw.Resize(fyne.NewSize(300, 300))
+				tw.Show()
 			}),
 			widget.NewButton("clear", func() {
 				views.SqlColumns = []string{}
@@ -78,6 +88,7 @@ func main() {
 	listBox = widget.NewCheckGroup(views.SqlColumns, func(selected []string) {
 		// 处理选择的选项
 		fmt.Println("Selected:", selected)
+		views.SelectedRows = selected
 	})
 	csqlbox := container.New(layout.NewVBoxLayout(), sqlParseContent, listBox)
 	csqlbox.Resize(fyne.NewSize(300, 300))

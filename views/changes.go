@@ -2,5 +2,6 @@ package views
 
 var (
 	SqlStatement string
-	SqlColumns []string
+	SqlColumns   []string
+	SelectedRows []string
 )

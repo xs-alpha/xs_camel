@@ -10,7 +10,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"xiaosheng/views"
 )
+
 var listBox *widget.CheckGroup
+
+// views.SqlColumns 切片的值是会更新的，要求页面也定时更新
 
 func main() {
 	myApp := app.New()
@@ -49,27 +52,45 @@ func main() {
 	)
 	content.Resize(fyne.NewSize(200, 200))
 
+	listBox = widget.NewCheckGroup([]string{" 111"}, func(strings []string) {})
+	listBox.Hide()
 	sqlParseContent := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("sql输入："),
 		container.NewHBox(widget.NewButton("输入 ", func() {
 			views.SqlParsePre(myApp)
 		}),
-		widget.NewButton("解析", func() {
-			views.ParseSql(myApp)
-		}),
-		// widget.NewLabel("———————————"),
-	),
-	)
+			widget.NewButton("解析", func() {
+				views.ParseSql(myApp)
+				listBox.Options = views.SqlColumns
+				listBox.Show()
+				myWindow.Content().Refresh()
+			}),
+			widget.NewButton("生成", func() {
 
-	listBox:=widget.NewCheckGroup(views.SqlColumns, func(selected []string) {
+			}),
+			// widget.NewLabel("———————————"),
+			listBox,
+		))
+
+	listBox = widget.NewCheckGroup(views.SqlColumns, func(selected []string) {
 		// 处理选择的选项
 		fmt.Println("Selected:", selected)
 	})
-	csqlbox:=container.New(layout.NewVBoxLayout(),sqlParseContent,listBox)
-	csqlbox.Resize(fyne.NewSize(300,300))
-	
+	csqlbox := container.New(layout.NewVBoxLayout(), sqlParseContent, listBox)
+	csqlbox.Resize(fyne.NewSize(300, 300))
+
 	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, csqlbox))
 	myWindow.Resize(fyne.NewSize(500, 300))
-	myWindow.SetFixedSize(true)
+
+	//myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()
+}
+
+func createListBox(get []string) *widget.CheckGroup {
+	listBox := widget.NewCheckGroup(get, func(selected []string) {
+		// 处理选择的选项
+		fmt.Println("Selected:", selected)
+	})
+
+	return listBox
 }

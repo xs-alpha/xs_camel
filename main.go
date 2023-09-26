@@ -54,7 +54,10 @@ func main() {
 		madeByLabel,
 	)
 
-	listBox = widget.NewCheckGroup([]string{" 111"}, func(strings []string) {})
+	listBox = widget.NewCheckGroup([]string{" 111"}, func(selected []string) {
+		fmt.Println("Selected:", selected)
+		tools.SelectedRows = selected
+	})
 	listBox.Hide()
 	sqlParseContent := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("sql输入："),
@@ -91,15 +94,17 @@ func main() {
 			widget.NewCheck("是否追加", func(val bool) {
 				tools.IsAppended = val
 			}),
-			listBox,
-		))
+		),
+		listBox,
+	)
 
-	listBox = widget.NewCheckGroup(tools.SqlColumns, func(selected []string) {
-		// 处理选择的选项
-		fmt.Println("Selected:", selected)
-		tools.SelectedRows = selected
-	})
-	csqlbox := container.New(layout.NewVBoxLayout(), sqlParseContent, listBox)
+	//listBox = widget.NewCheckGroup(tools.SqlColumns, func(selected []string) {
+	//	// 处理选择的选项
+	//	fmt.Println("Selected:", selected)
+	//	tools.SelectedRows = selected
+	//})
+
+	csqlbox := container.New(layout.NewVBoxLayout(), sqlParseContent)
 	csqlbox.Resize(fyne.NewSize(300, 300))
 
 	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, csqlbox))

@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/xwb1989/sqlparser"
 	"strings"
+	"time"
 )
 
 func GetExcelElement(inputSlice []string) string {
 	result := ""
 	for i, element := range inputSlice {
 		// Split the element by ", " and join them with "\t"
+		element = strings.Split(element, ".")[1]
 		parts := strings.Split(element, ", ")
 		joinedElement := strings.Join(parts, "\t")
 
@@ -43,10 +45,11 @@ func StmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) ([]string, 
 		comment := col.Type.Comment
 		if comment == nil {
 			builder.WriteString(fmt.Sprintf("\t%s\t%s\t\n", field, goType))
+			retStr = "-" + ", " + retStr
 		} else {
 			builder.WriteString(fmt.Sprintf("\t%s\t%s\t`comment:\"%s\"` \n",
 				field, goType, string(comment.Val)))
-			retStr = retStr + ", " + string(comment.Val)
+			retStr = string(comment.Val) + ", " + retStr
 		}
 		if retStr == "" {
 			continue
@@ -78,4 +81,35 @@ func snakeCaseToCamel(str string) string {
 		builder.WriteByte(str[i])
 	}
 	return builder.String()
+}
+
+/**
+GetTimestamp 根据传入的时间字符串和格式获取时间戳，如果未传入则返回当前时间戳。
+*/
+func GetTimestamp(timeStr, layout string) (int64, error) {
+	var parsedTime time.Time
+	var err error
+
+	if timeStr != "" && layout != "" {
+		fmt.Println("按时间格式")
+		// 解析时间字符串
+		parsedTime, err = time.Parse(layout, timeStr)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		// 没有传入时间字符串和格式，使用当前时间
+		fmt.Println("wu时间格式")
+		parsedTime = time.Now()
+	}
+
+	// 获取时间戳
+	timestamp := parsedTime.Unix()
+	return timestamp, nil
+}
+
+// IsTimeFormat 判断字符串是否是时间格式
+func IsTimeFormat(str, layout string) bool {
+	_, err := time.Parse(layout, str)
+	return err == nil
 }

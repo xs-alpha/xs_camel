@@ -2,9 +2,12 @@
 package main
 
 import (
+	"crypto/md5"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"net/url"
+	"strconv"
 	"xiaosheng/ast"
 	"xiaosheng/tools"
 	"xiaosheng/views"
@@ -60,12 +63,14 @@ func main() {
 		}),
 			widget.NewButton("解析", func() {
 				ast.ParseSql(myApp)
+				fmt.Println("tools.column:", tools.SqlColumns)
 				listBox.Show()
 				flushColumnsToListBox(myWindow)
 			}),
 			widget.NewButton("生成", func() {
 				tw := myApp.NewWindow("target")
 				wet := widget.NewMultiLineEntry()
+				fmt.Println("tools.selected:", tools.SelectedRows)
 				element := tools.GetExcelElement(tools.SelectedRows)
 				wet.SetText(element)
 				wet.SetMinRowsVisible(20)
@@ -82,6 +87,9 @@ func main() {
 				tools.SqlColumns = []string{}
 				tools.SqlStatement = ""
 				flushColumnsToListBox(myWindow)
+			}),
+			widget.NewCheck("是否追加", func(val bool) {
+				tools.IsAppended = val
 			}),
 			listBox,
 		))
@@ -127,8 +135,10 @@ func creatToolBtn(myApp fyne.App) fyne.CanvasObject {
 
 		wetin := widget.NewMultiLineEntry()
 		wetin.SetMinRowsVisible(10)
+		wetin.PlaceHolder = "原文"
 		wetout := widget.NewMultiLineEntry()
 		wetout.SetMinRowsVisible(10)
+		wetout.PlaceHolder = "密文"
 		cbox := container.NewHBox(
 			widget.NewButton("base64加密", func() {
 				tools.Base64Origin = wetin.Text
@@ -146,15 +156,41 @@ func creatToolBtn(myApp fyne.App) fyne.CanvasObject {
 			widget.NewButton("sha256加密", func() {
 				fmt.Println("sha256-encoded-input:", wetin.Text)
 				h := sha256.Sum256([]byte(wetin.Text))
-				fmt.Println("base64-decoded:", string(h[:]))
-				wetout.SetText(string(h[:]))
+				fmt.Println("base64-decoded:", fmt.Sprintf("%x", h))
+				wetout.SetText(fmt.Sprintf("%x", h))
 			}),
 			widget.NewButton("md5", func() {
-				tools.Base64Encode = wetout.Text
-				fmt.Println("base64-decoded-input:", wetout.Text)
-				decoded, _ := base64.StdEncoding.DecodeString(tools.Base64Encode)
-				fmt.Println("base64-decoded:", string(decoded))
-				wetin.SetText(string(decoded))
+				fmt.Println("md5-input:", wetin.Text)
+				sum := md5.Sum([]byte(wetin.Text))
+				fmt.Println("md5-output:", fmt.Sprintf("%x", sum))
+				wetout.SetText(fmt.Sprintf("%x", sum))
+			}),
+			widget.NewButton("urlEncode", func() {
+				fmt.Println("urlEncode-input:", wetin.Text)
+				sum := url.QueryEscape(wetin.Text)
+				fmt.Println("urlEncode-output:", sum)
+				wetout.SetText(sum)
+			}),
+			widget.NewButton("urlDecode", func() {
+				fmt.Println("urlDecode-input:", wetout.Text)
+				out, _ := url.QueryUnescape(wetout.Text)
+				fmt.Println("urlDecode-output:", out)
+				wetout.SetText(out)
+			}),
+			widget.NewButton("时间戳", func() {
+				isTime := tools.IsTimeFormat(wetin.Text, "2006-01-02 15:04:05")
+				if !isTime {
+					wetin.SetText("")
+				}
+				wetin.PlaceHolder = "传入时间格式yyyy-MM-dd HH:mm:ss可输出某时刻的时间戳，未传入这输出当前时间戳!!"
+				fmt.Println("时间戳-input:", wetin.Text)
+				timestamp, _ := tools.GetTimestamp(wetin.Text, "2006-01-02 15:04:05")
+				fmt.Println("时间戳-output:", strconv.FormatInt(timestamp, 10))
+				if isTime {
+					wetout.SetText("时间戳： " + strconv.FormatInt(timestamp, 10))
+				} else {
+					wetout.SetText("当前时间戳： " + strconv.FormatInt(timestamp, 10))
+				}
 			}),
 		)
 		cn := container.NewVBox(wetin, cbox, wetout)

@@ -72,5 +72,24 @@ func ParseSql(app fyne.App) {
 		fmt.Println("res" + v)
 	}
 	// 遍历原始切片，筛选出非空字符串并添加到新的切片中
-	tools.SqlColumns = res
+	//tools.SqlColumns = res
+
+	if tools.IsAppended {
+		l := len(tools.SqlColumns)
+		// 遍历原始切片并为每个元素前面加上索引加上点号
+		for i, value := range res {
+			res[i] = fmt.Sprintf("%d.%s", i+l, value)
+		}
+
+		tools.SqlColumns = append(tools.SqlColumns, res...)
+		fmt.Println("all:", tools.SqlColumns, "now:", res)
+	} else {
+		tools.SqlColumns = res
+		// 遍历原始切片并为每个元素前面加上索引加上点号
+		for i, value := range tools.SqlColumns {
+			tools.SqlColumns[i] = fmt.Sprintf("%d.%s", i, value)
+		}
+
+	}
+
 }

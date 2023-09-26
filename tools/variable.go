@@ -5,6 +5,7 @@ var (
 	SqlColumns   []string
 	SelectedRows []string
 	SelectedText string
+	IsAppended   bool
 
 	// base64
 	Base64Origin string

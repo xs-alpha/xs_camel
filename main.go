@@ -3,13 +3,15 @@ package main
 
 import (
 	"fmt"
+	"xiaosheng/tools"
+	"xiaosheng/views"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"xiaosheng/tools"
-	"xiaosheng/views"
+	"github.com/atotto/clipboard"
 )
 
 var listBox *widget.CheckGroup
@@ -69,9 +71,10 @@ func main() {
 				element := tools.GetExcelElement(views.SelectedRows)
 				wet.SetText(element)
 				wet.SetMinRowsVisible(20)
-
+				views.SelectedText = element
 				box := container.NewVBox(wet, widget.NewButton("复制", func() {
-
+					clipboard.WriteAll(views.SelectedText)
+					tw.Close()
 				}))
 				tw.SetContent(box)
 				tw.Resize(fyne.NewSize(300, 300))

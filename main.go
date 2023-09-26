@@ -2,6 +2,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"xiaosheng/tools"
 	"xiaosheng/views"
@@ -33,25 +35,20 @@ func main() {
 
 	// 创建一个标签
 	madeByLabel := widget.NewLabel("@xiaosheng : blog.devilwst.top")
-
-	// 创建一个自定义的 TextStyle 结构，并设置字体大小
-	customTextStyle := fyne.TextStyle{
-		Bold:      false,
-		Italic:    true,
-		Monospace: false, // 可根据需要设置其他样式
-	}
+	toolsLabel := widget.NewLabel("---小工具---")
+    
 	// 将自定义的 TextStyle 应用到标签的 TextStyle 属性上
 	go views.StartClipboardListener(resultEntry)
-	madeByLabel.TextStyle = customTextStyle
-
+	toolBtn:=creatToolBtn(myApp)
 	content := container.New(
 		layout.NewVBoxLayout(),
-		widget.NewLabel("选择是否监听剪贴板："),
+		widget.NewLabel("开启camel转换："),
 		checkBox,
 		resultEntry, // 添加文本框
+		toolsLabel,
+		toolBtn,
 		madeByLabel,
 	)
-	content.Resize(fyne.NewSize(200, 200))
 
 	listBox = widget.NewCheckGroup([]string{" 111"}, func(strings []string) {})
 	listBox.Hide()
@@ -99,7 +96,6 @@ func main() {
 	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, csqlbox))
 	myWindow.Resize(fyne.NewSize(500, 300))
 	myWindow.Content().Size().Max(fyne.NewSize(1920,1000))
-
 	//myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()
 }
@@ -107,4 +103,64 @@ func main() {
 func flushColumnsToListBox(myWindow fyne.Window) {
 	listBox.Options = views.SqlColumns
 	myWindow.Content().Refresh()
+}
+
+func GetTextWindow(myApp fyne.App)string{
+	secret:=""
+	sew:=myApp.NewWindow("密钥")
+	wne:=widget.NewMultiLineEntry()
+	wne.SetMinRowsVisible(8)
+	wneBtn:=widget.NewButton("确认",func ()  {
+		secret = wne.Text
+		sew.Close()
+	})
+	cb:=container.NewVBox(wne, wneBtn)
+	sew.SetContent(cb)
+	sew.Show()
+	return secret
+}
+
+func creatToolBtn(myApp fyne.App)fyne.CanvasObject{
+	toolBtn:=widget.NewButton("点击打开小工具",func(){
+        tw:=myApp.NewWindow("小工具")
+
+        wetin:=widget.NewMultiLineEntry()
+        wetin.SetMinRowsVisible(10)
+        wetout:=widget.NewMultiLineEntry()
+        wetout.SetMinRowsVisible(10)
+        cbox:=container.NewHBox(
+        widget.NewButton("base64加密", func(){
+            views.Base64Origin = wetin.Text
+         encoded:=base64.StdEncoding.EncodeToString([]byte(views.Base64Origin))
+         fmt.Println("base64-encoded:",encoded)
+         wetout.SetText(encoded)
+        }),
+        widget.NewButton("base64解密", func(){
+			views.Base64Encode = wetout.Text
+			fmt.Println("base64-decoded-input:",wetout.Text)
+            decoded,_:=base64.StdEncoding.DecodeString(views.Base64Encode)
+            fmt.Println("base64-decoded:",string(decoded))
+            wetin.SetText(string(decoded))
+        }),
+		widget.NewButton("sha256加密", func(){
+			fmt.Println("sha256-encoded-input:",wetin.Text)
+			h:=sha256.Sum256([]byte(wetin.Text))
+            fmt.Println("base64-decoded:",string(h[:]))
+            wetout.SetText(string(h[:]))
+        }),
+		widget.NewButton("md5", func(){
+			views.Base64Encode = wetout.Text
+			fmt.Println("base64-decoded-input:",wetout.Text)
+            decoded,_:=base64.StdEncoding.DecodeString(views.Base64Encode)
+            fmt.Println("base64-decoded:",string(decoded))
+            wetin.SetText(string(decoded))
+        }),
+        )
+        cn:=container.NewVBox(wetin,cbox,wetout)
+        tw.SetContent(cn)
+        tw.Resize(fyne.NewSize(300,300))
+        tw.Show()
+
+    })
+	return toolBtn
 }

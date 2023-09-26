@@ -98,6 +98,7 @@ func main() {
 
 	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, csqlbox))
 	myWindow.Resize(fyne.NewSize(500, 300))
+	myWindow.Content().Size().Max(fyne.NewSize(1920,1000))
 
 	//myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()

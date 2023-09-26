@@ -20,7 +20,7 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="mavenHome" value="D:/env/maven" />
+        <option name="mavenHome" value="$PROJECT_DIR$/../../../env/maven" />
         <option name="userSettingsFile" value="D:\env\maven\conf\settings.xml" />
       </MavenGeneralSettings>
     </option>
@@ -44,6 +44,11 @@
   </component>
   <component name="RebelAgentSelection">
     <selection>jr</selection>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Go\proj\xs_camel" />
+    </key>
   </component>
   <component name="SvnConfiguration">
     <configuration />

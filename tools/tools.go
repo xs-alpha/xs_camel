@@ -2,9 +2,12 @@ package tools
 
 import (
 	"fmt"
-	"github.com/xwb1989/sqlparser"
+	"os"
 	"strings"
 	"time"
+
+	qrcodeReader "github.com/tuotoo/qrcode"
+	"github.com/xwb1989/sqlparser"
 )
 
 func GetExcelElement(inputSlice []string) string {
@@ -113,3 +116,29 @@ func IsTimeFormat(str, layout string) bool {
 	_, err := time.Parse(layout, str)
 	return err == nil
 }
+
+
+func IsImg(suffix string)bool{
+	suffixs:=[]string{".png",".jpeg",".webp",".jpg"}
+	for _, v := range suffixs {
+		if v==strings.ToLower(suffix){
+			return true
+		}
+	}
+	return false
+}
+
+func ReadQRCode(filename string) (content string) {
+	fi, err := os.Open(filename)
+	if err != nil {
+	   fmt.Println("readQrcode"+err.Error())
+	   return
+	}
+	defer fi.Close()
+	qrmatrix, err := qrcodeReader.Decode(fi)
+	if err != nil {
+	   fmt.Println("readQrcode:"+err.Error())
+	   return
+	}
+	return qrmatrix.Content
+ }

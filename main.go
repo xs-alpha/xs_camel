@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net/url"
 	"strconv"
 	"xiaosheng/ast"
@@ -15,6 +16,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/atotto/clipboard"
@@ -198,11 +200,52 @@ func creatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				}
 			}),
 		)
-		cn := container.NewVBox(wetin, cbox, wetout)
+		cboxImg := container.NewHBox(
+			widget.NewButton("二维码解码", func() {
+				// wetin.Hide()
+
+				dia:=dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
+					if err!=nil{
+						fmt.Println("newOpenFileFolder:",err.Error())
+						return
+					}
+					suffix:=uc.URI().Extension()
+					fmt.Println("suffix:",suffix)
+					if !tools.IsImg(suffix){
+						fmt.Println("notImg-suffix:",suffix)
+						return
+					}
+					path:=uc.URI().String()
+					wetin.SetText("打开二维码路径："+path)
+					fmt.Println("path:",path)
+					tools.ReadQRCode(path)
+				}, tw)
+				dia.Show()
+				fmt.Println("urlDecode-input:", wetout.Text)
+				out, _ := url.QueryUnescape(wetout.Text)
+				fmt.Println("urlDecode-output:", out)
+				wetout.SetText(out)
+			}),
+		)
+		cn := container.NewVBox(wetin, cbox,cboxImg, wetout)
 		tw.SetContent(cn)
 		tw.Resize(fyne.NewSize(300, 300))
 		tw.Show()
 
 	})
 	return toolBtn
+}
+
+func readImgIO(f fyne.URIReadCloser){
+	full := make([]byte, 0)
+	b := make([]byte, 1024)
+	for {
+		_, err := f.Read(b)
+		full = append(full, b...)
+		if err == io.EOF {
+			break
+		}
+	}
+	fmt.Println(full)
+	defer f.Close()
 }

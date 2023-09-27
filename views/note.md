@@ -146,3 +146,5 @@ sqlStatement = re.ReplaceAllString(sqlStatement, "$1")
 	fmt.Println("res"+res)
 }
 
+
+ err := qrcode.WriteFile("https://example.org", qrcode.Medium, 256, "qr.png")

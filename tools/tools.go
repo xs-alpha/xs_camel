@@ -117,11 +117,10 @@ func IsTimeFormat(str, layout string) bool {
 	return err == nil
 }
 
-
-func IsImg(suffix string)bool{
-	suffixs:=[]string{".png",".jpeg",".webp",".jpg"}
+func IsImg(suffix string) bool {
+	suffixs := []string{".png", ".jpeg", ".webp", ".jpg"}
 	for _, v := range suffixs {
-		if v==strings.ToLower(suffix){
+		if v == strings.ToLower(suffix) {
 			return true
 		}
 	}
@@ -131,14 +130,14 @@ func IsImg(suffix string)bool{
 func ReadQRCode(filename string) (content string) {
 	fi, err := os.Open(filename)
 	if err != nil {
-	   fmt.Println("readQrcode"+err.Error())
-	   return
+		fmt.Println("readQrcode" + err.Error())
+		return
 	}
 	defer fi.Close()
 	qrmatrix, err := qrcodeReader.Decode(fi)
 	if err != nil {
-	   fmt.Println("readQrcode:"+err.Error())
-	   return
+		fmt.Println("readQrcode:" + err.Error())
+		return
 	}
 	return qrmatrix.Content
- }
+}

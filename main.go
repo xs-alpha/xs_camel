@@ -2,13 +2,18 @@
 package main
 
 import (
+	"bytes"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"fyne.io/fyne/v2/canvas"
 	"io"
 	"net/url"
+	"os"
 	"strconv"
+	"strings"
+	"time"
 	"xiaosheng/ast"
 	"xiaosheng/tools"
 	"xiaosheng/views"
@@ -20,6 +25,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/atotto/clipboard"
+	qrcodeGenerate "github.com/skip2/go-qrcode"
 )
 
 var listBox *widget.CheckGroup
@@ -61,6 +67,8 @@ func main() {
 		tools.SelectedRows = selected
 	})
 	listBox.Hide()
+	listBoxContainer := container.NewVScroll(listBox) // Wrap the CheckGroup in a scrollable container
+	listBoxContainer.Hide()
 	sqlParseContent := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("sql输入："),
 		container.NewHBox(widget.NewButton("输入 ", func() {
@@ -70,6 +78,7 @@ func main() {
 				ast.ParseSql(myApp)
 				fmt.Println("tools.column:", tools.SqlColumns)
 				listBox.Show()
+				listBoxContainer.Show()
 				flushColumnsToListBox(myWindow)
 			}),
 			widget.NewButton("生成", func() {
@@ -97,7 +106,7 @@ func main() {
 				tools.IsAppended = val
 			}),
 		),
-		listBox,
+		listBoxContainer,
 	)
 
 	//listBox = widget.NewCheckGroup(tools.SqlColumns, func(selected []string) {
@@ -121,17 +130,19 @@ func flushColumnsToListBox(myWindow fyne.Window) {
 	myWindow.Content().Refresh()
 }
 
-func GetTextWindow(myApp fyne.App) string {
+func GetTextWindow(myApp fyne.App, title string, label string) string {
 	secret := ""
-	sew := myApp.NewWindow("密钥")
+	sew := myApp.NewWindow(title)
+	wn := widget.NewLabel(label)
 	wne := widget.NewMultiLineEntry()
 	wne.SetMinRowsVisible(8)
 	wneBtn := widget.NewButton("确认", func() {
 		secret = wne.Text
 		sew.Close()
 	})
-	cb := container.NewVBox(wne, wneBtn)
+	cb := container.NewVBox(wne, wn, wneBtn)
 	sew.SetContent(cb)
+	sew.Resize(fyne.NewSize(200, 200))
 	sew.Show()
 	return secret
 }
@@ -202,32 +213,67 @@ func creatToolBtn(myApp fyne.App) fyne.CanvasObject {
 		)
 		cboxImg := container.NewHBox(
 			widget.NewButton("二维码解码", func() {
-				// wetin.Hide()
-
-				dia:=dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
-					if err!=nil{
-						fmt.Println("newOpenFileFolder:",err.Error())
+				dia := dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
+					if err != nil {
+						fmt.Println("newOpenFileFolder:", err.Error())
 						return
 					}
-					suffix:=uc.URI().Extension()
-					fmt.Println("suffix:",suffix)
-					if !tools.IsImg(suffix){
-						fmt.Println("notImg-suffix:",suffix)
+					suffix := uc.URI().Extension()
+					fmt.Println("suffix:", suffix)
+					if !tools.IsImg(suffix) {
+						wetin.SetText("请打开图片格式文件哦！")
+						fmt.Println("notImg-suffix:", suffix)
 						return
 					}
-					path:=uc.URI().String()
-					wetin.SetText("打开二维码路径："+path)
-					fmt.Println("path:",path)
-					tools.ReadQRCode(path)
+					path := uc.URI().String()
+					wetin.SetText("打开二维码路径：" + path)
+					fmt.Println("path:", path)
+					path = strings.Replace(path, "file://", "", 1)
+					res := tools.ReadQRCode(path)
+					fmt.Println("res:", res)
+					wetout.SetText("解析 成功-- 解析内容为： " + res)
 				}, tw)
 				dia.Show()
-				fmt.Println("urlDecode-input:", wetout.Text)
-				out, _ := url.QueryUnescape(wetout.Text)
-				fmt.Println("urlDecode-output:", out)
-				wetout.SetText(out)
+			}),
+
+			widget.NewButton("二维码生成", func() {
+				//cont:=GetTextWindow(myApp,"输入二维码内容","请在输入框输入二维码 内容：")
+				sew := myApp.NewWindow("输入二维码内容")
+				wn := widget.NewLabel("请在输入框输入二维码 内容：")
+				wne := widget.NewMultiLineEntry()
+				wne.SetMinRowsVisible(8)
+				wneBtn := widget.NewButton("确认", func() {
+					cont := wne.Text
+					sew.Close()
+					var png []byte
+					png, err := qrcodeGenerate.Encode(cont, qrcodeGenerate.Medium, 256)
+					if err != nil {
+						wetin.SetText("生成 二维码失败")
+					}
+					pngReader := bytes.NewReader(png)
+					qrwin := myApp.NewWindow("生成二维码")
+					image := canvas.NewImageFromReader(pngReader, "QR")
+					image.FillMode = canvas.ImageFillOriginal
+					qrctn := container.NewVBox(image, widget.NewButton("保存", func() {
+						if isSavedSuccess, filename := writeInFile(pngReader); isSavedSuccess {
+							wetout.SetText("二维码保存成功,文件名：" + filename)
+							qrwin.Close()
+						} else {
+							wetout.SetText("二维码 保存失败")
+						}
+					}))
+					qrwin.SetContent(qrctn)
+					qrwin.Resize(fyne.NewSize(200, 200))
+					qrwin.Show()
+				})
+				cb := container.NewVBox(wne, wn, wneBtn)
+				sew.SetContent(cb)
+				sew.Resize(fyne.NewSize(200, 200))
+				sew.Show()
+				//err := qrcodeGenerate.WriteFile("https://example.org", qrcodeGenerate.Medium, 256, "qr.png")
 			}),
 		)
-		cn := container.NewVBox(wetin, cbox,cboxImg, wetout)
+		cn := container.NewVBox(wetin, cbox, cboxImg, wetout)
 		tw.SetContent(cn)
 		tw.Resize(fyne.NewSize(300, 300))
 		tw.Show()
@@ -236,7 +282,7 @@ func creatToolBtn(myApp fyne.App) fyne.CanvasObject {
 	return toolBtn
 }
 
-func readImgIO(f fyne.URIReadCloser){
+func readImgIO(f fyne.URIReadCloser) {
 	full := make([]byte, 0)
 	b := make([]byte, 1024)
 	for {
@@ -248,4 +294,36 @@ func readImgIO(f fyne.URIReadCloser){
 	}
 	fmt.Println(full)
 	defer f.Close()
+}
+
+func writeInFile(imageReader io.Reader) (bool, string) {
+	// 获取当前时间戳并格式化为字符串
+	timestamp := time.Now().Unix()
+	timestampStr := fmt.Sprintf("%d", timestamp)
+
+	// 创建文件名，将时间戳作为文件名的一部分，加上文件后缀（例如 ".png"）
+	fileName := timestampStr + ".png"
+	// 创建一个文件用于保存图片
+	outputFile, err := os.Create(fileName)
+	if err != nil {
+		fmt.Println("Error creating output file:", err)
+		return false, ""
+	}
+	defer outputFile.Close()
+
+	// 将 imageReader 重新定位到开头
+	if _, err := imageReader.(*bytes.Reader).Seek(0, 0); err != nil {
+		fmt.Println("Error seeking imageReader:", err)
+		return false, ""
+	}
+
+	// 使用 io.Copy 将数据从 io.Reader 复制到文件
+	_, copyErr := io.Copy(outputFile, imageReader)
+	if copyErr != nil {
+		fmt.Println("Error copying data to file:", copyErr)
+		return false, ""
+	}
+
+	fmt.Println("Image saved as " + fileName)
+	return true, fileName
 }

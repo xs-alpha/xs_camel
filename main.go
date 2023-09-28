@@ -5,9 +5,10 @@ import (
 	"bytes"
 	"crypto/md5"
 	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"fyne.io/fyne/v2/canvas"
 	"io"
 	"net/url"
 	"os"
@@ -17,6 +18,8 @@ import (
 	"xiaosheng/ast"
 	"xiaosheng/tools"
 	"xiaosheng/views"
+
+	"fyne.io/fyne/v2/canvas"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -140,7 +143,7 @@ func GetTextWindow(myApp fyne.App, title string, label string) string {
 		secret = wne.Text
 		sew.Close()
 	})
-	cb := container.NewVBox(wne, wn, wneBtn)
+	cb := container.NewVBox(wn,wne, wneBtn)
 	sew.SetContent(cb)
 	sew.Resize(fyne.NewSize(200, 200))
 	sew.Show()
@@ -266,11 +269,52 @@ func creatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					qrwin.Resize(fyne.NewSize(200, 200))
 					qrwin.Show()
 				})
-				cb := container.NewVBox(wne, wn, wneBtn)
+				cb := container.NewVBox(wn,wne, wneBtn)
 				sew.SetContent(cb)
 				sew.Resize(fyne.NewSize(200, 200))
 				sew.Show()
 				//err := qrcodeGenerate.WriteFile("https://example.org", qrcodeGenerate.Medium, 256, "qr.png")
+			}),
+			widget.NewButton("sha512加密", func() {
+				fmt.Println("sha512-input:", wetin.Text)
+				hashedBytes := sha512.Sum512([]byte(wetin.Text))
+				hashedString := fmt.Sprintf("%x", hashedBytes)
+				fmt.Println("sha512-output:", hashedString)
+				wetout.SetText(hashedString)
+			}),
+			widget.NewButton("随机密码", func() {
+				wetin.PlaceHolder = "可以输入要生成的随机密码长度，不输入默认取8"
+				pwd:=""
+				if !tools.IsNumeric(wetin.Text){
+					pwd,_ = tools.GenerateRandomPassword(8)
+				}else{
+					leng,_:=strconv.Atoi(wetin.Text)
+					pwd,_=tools.GenerateRandomPassword(leng)
+				}
+				wetout.SetText("生成随记密码:"+ pwd)
+				fmt.Println("password-output:", pwd)
+			}),
+			widget.NewButton("json美化", func() {
+				// 解析JSON数据到一个map或结构体
+				var parsedData map[string]interface{}
+				if err := json.Unmarshal([]byte(wetin.Text), &parsedData); err != nil {
+					fmt.Println("JSON解析失败:", err)
+					wetout.SetText("json解析失败："+err.Error())
+					return
+				}
+				prettyJson,err:=tools.PrettyPrintJSON(parsedData)
+				if err!=nil{
+					wetout.SetText("json解析失败")
+					return
+				}
+				fmt.Println("json美化："+prettyJson)
+				wetout.SetText(prettyJson)
+			}),
+			widget.NewButton("字数统计", func() {
+				fmt.Println("字数统计-input:", wetin.Text)
+				num:=tools.CountValidWords(wetin.Text)
+				fmt.Println("字数统计-output:", num)
+				wetout.SetText("字数统计(不统计空格):"+strconv.Itoa(num))
 			}),
 		)
 		cn := container.NewVBox(wetin, cbox, cboxImg, wetout)

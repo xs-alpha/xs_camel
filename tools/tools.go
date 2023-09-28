@@ -1,10 +1,15 @@
 package tools
 
 import (
+	"crypto/rand"
+	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
+	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	qrcodeReader "github.com/tuotoo/qrcode"
 	"github.com/xwb1989/sqlparser"
@@ -140,4 +145,50 @@ func ReadQRCode(filename string) (content string) {
 		return
 	}
 	return qrmatrix.Content
+}
+
+func GenerateRandomPassword(length int) (string, error) {
+	// 可用于生成密码的字符集
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:,.<>?"
+	charsetLength := big.NewInt(int64(len(charset)))
+	
+	// 创建一个随机密码的切片
+	password := make([]byte, length)
+	
+	for i := 0; i < length; i++ {
+		// 生成一个随机的索引，用于选择字符集中的字符
+		randomIndex, err := rand.Int(rand.Reader, charsetLength)
+		if err != nil {
+			return "", err
+		}
+		password[i] = charset[randomIndex.Int64()]
+	}
+	
+	return string(password), nil
+}
+
+func IsNumeric(str string) bool {
+	_, err := strconv.Atoi(str)
+	return err == nil
+}
+func PrettyPrintJSON(data interface{}) (string, error) {
+	// MarshalIndent 函数用于将数据转换为美化的 JSON 字符串
+	prettyJSON, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		return "", err
+	}
+	return string(prettyJSON), nil
+}
+
+func CountValidWords(text string) int {
+	count := 0
+
+	// 遍历文本的每个字符
+	for _, char := range text {
+		if !unicode.IsSpace(char) {
+			count++
+		}
+	}
+
+	return count
 }

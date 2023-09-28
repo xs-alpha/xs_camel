@@ -1,9 +1,11 @@
 package tools
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
 	"os"
 	"strconv"
@@ -192,3 +194,36 @@ func CountValidWords(text string) int {
 
 	return count
 }
+
+func WriteInFile(imageReader io.Reader) (bool, string) {
+	// 获取当前时间戳并格式化为字符串
+	timestamp := time.Now().Unix()
+	timestampStr := fmt.Sprintf("%d", timestamp)
+
+	// 创建文件名，将时间戳作为文件名的一部分，加上文件后缀（例如 ".png"）
+	fileName := timestampStr + ".png"
+	// 创建一个文件用于保存图片
+	outputFile, err := os.Create(fileName)
+	if err != nil {
+		fmt.Println("Error creating output file:", err)
+		return false, ""
+	}
+	defer outputFile.Close()
+
+	// 将 imageReader 重新定位到开头
+	if _, err := imageReader.(*bytes.Reader).Seek(0, 0); err != nil {
+		fmt.Println("Error seeking imageReader:", err)
+		return false, ""
+	}
+
+	// 使用 io.Copy 将数据从 io.Reader 复制到文件
+	_, copyErr := io.Copy(outputFile, imageReader)
+	if copyErr != nil {
+		fmt.Println("Error copying data to file:", copyErr)
+		return false, ""
+	}
+
+	fmt.Println("Image saved as " + fileName)
+	return true, fileName
+}
+

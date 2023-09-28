@@ -1,11 +1,14 @@
 package tools
 
+import "fyne.io/fyne/v2/widget"
+
 var (
 	SqlStatement string
 	SqlColumns   []string
 	SelectedRows []string
 	SelectedText string
 	IsAppended   bool
+	ListBox      *widget.CheckGroup
 
 	// base64
 	Base64Origin string

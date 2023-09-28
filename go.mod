@@ -7,13 +7,14 @@ require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/flopp/go-findfont v0.1.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	github.com/tjfoc/gmsm v1.4.1
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2
 )
 
 require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/maruel/rs v1.1.0 // indirect
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	rsc.io/qr v0.2.0 // indirect
 )
 

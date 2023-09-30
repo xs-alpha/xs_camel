@@ -76,20 +76,20 @@ func StmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) ([]string, 
 // In Go, struct name often is camel case
 func snakeCaseToCamel(str string) string {
 	builder := strings.Builder{}
-	index := 0
-	if str[0] >= 'a' && str[0] <= 'z' {
-		builder.WriteByte(str[0] - ('a' - 'A'))
-		index = 1
-	}
-	for i := index; i < len(str); i++ {
+	shouldCapitalize := false
+
+	for i := 0; i < len(str); i++ {
 		if str[i] == '_' && i+1 < len(str) {
-			if str[i+1] >= 'a' && str[i+1] <= 'z' {
-				builder.WriteByte(str[i+1] - ('a' - 'A'))
-				i++
-				continue
-			}
+			shouldCapitalize = true
+			continue
 		}
-		builder.WriteByte(str[i])
+
+		if shouldCapitalize {
+			builder.WriteByte(str[i] - ('a' - 'A'))
+			shouldCapitalize = false
+		} else {
+			builder.WriteByte(str[i])
+		}
 	}
 	return builder.String()
 }

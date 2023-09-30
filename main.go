@@ -43,14 +43,10 @@ func main() {
 		toolBtn,
 		madeByLabel,
 	)
-	content.Resize(fyne.NewSize(200, 300))
 
 	sqlParseContent := views.SqlContent(myApp, &myWindow)
 
-	csqlbox := container.New(layout.NewVBoxLayout(), sqlParseContent)
-	csqlbox.Resize(fyne.NewSize(300, 300))
-
-	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, csqlbox))
+	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, sqlParseContent))
 	myWindow.Resize(fyne.NewSize(500, 300))
 	myWindow.Content().Size().Max(fyne.NewSize(1920, 1000))
 	//myWindow.SetFixedSize(true)

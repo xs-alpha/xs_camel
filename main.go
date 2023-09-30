@@ -33,7 +33,7 @@ func main() {
 	})
 
 	// 创建一个标签
-	madeByLabel := widget.NewLabel("@xiaosheng : blog.devilwst.top")
+	madeByLabel := widget.NewLabel("@xiaosheng ")
 	toolsLabel := widget.NewLabel("---小工具---")
 
 	// 将自定义的 TextStyle 应用到标签的 TextStyle 属性上

@@ -2,7 +2,8 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"xiaosheng/logs"
 	"xiaosheng/views"
 
 	"fyne.io/fyne/v2"
@@ -13,6 +14,10 @@ import (
 )
 
 func main() {
+	// 初始化日志
+	logs.SetupLogger()
+	go logs.MonitorFileSize(200 * 1024 * 1024)
+
 	myApp := app.New()
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
@@ -23,7 +28,7 @@ func main() {
 	resultEntry.Disable()
 	// 创建复选框
 	checkBox := widget.NewCheck("监听剪贴板", func(value bool) {
-		fmt.Println("flag:", value)
+		log.Println("监听 剪切板：flag:", value)
 		views.ShouldListenClipboard = value // 设置标志来表示是否要监听剪贴板
 	})
 

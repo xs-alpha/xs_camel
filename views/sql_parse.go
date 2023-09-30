@@ -1,12 +1,12 @@
 package views
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/atotto/clipboard"
+	"log"
 	"xiaosheng/ast"
 	"xiaosheng/tools"
 )
@@ -21,7 +21,7 @@ func SqlParsePre(myApp fyne.App) {
 	//sqlBox.Resize(fyne.NewSize(300, 400)) // 设置高度为 400
 	button := widget.NewButton("确认", func() {
 		tools.SqlStatement = we.Text
-		fmt.Println("监听到sql", we.Text)
+		log.Println("监听到sql %s", we.Text)
 		w3.Close()
 	})
 
@@ -35,7 +35,7 @@ func SqlParsePre(myApp fyne.App) {
 func SqlContent(myApp fyne.App, myWindow *fyne.Window) *fyne.Container {
 	// myWindow:=*myWindo
 	listBox = widget.NewCheckGroup([]string{" 111"}, func(selected []string) {
-		fmt.Println("Selected:", selected)
+		log.Println("Selected:%s", selected)
 		tools.SelectedRows = selected
 	})
 	//listBox.Hide()
@@ -50,7 +50,7 @@ func SqlContent(myApp fyne.App, myWindow *fyne.Window) *fyne.Container {
 		}),
 			widget.NewButton("解析", func() {
 				ast.ParseSql(myApp)
-				fmt.Println("tools.column:", tools.SqlColumns)
+				log.Println("tools.column:%s", tools.SqlColumns)
 				flushColumnsToListBox(*myWindow)
 				//listBox.Show()
 				listBoxContainer.Show()
@@ -60,7 +60,7 @@ func SqlContent(myApp fyne.App, myWindow *fyne.Window) *fyne.Container {
 			widget.NewButton("生成", func() {
 				tw := myApp.NewWindow("target")
 				wet := widget.NewMultiLineEntry()
-				fmt.Println("tools.selected:", tools.SelectedRows)
+				log.Println("tools.selected:%s", tools.SelectedRows)
 				element := tools.GetExcelElement(tools.SelectedRows)
 				wet.SetText(element)
 				wet.SetMinRowsVisible(20)

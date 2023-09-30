@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math/big"
 	"os"
 	"strconv"
@@ -101,7 +102,7 @@ func GetTimestamp(timeStr, layout string) (int64, error) {
 	var err error
 
 	if timeStr != "" && layout != "" {
-		fmt.Println("按时间格式")
+		log.Println("GetTimestamp-按时间格式")
 		// 解析时间字符串
 		parsedTime, err = time.Parse(layout, timeStr)
 		if err != nil {
@@ -109,7 +110,7 @@ func GetTimestamp(timeStr, layout string) (int64, error) {
 		}
 	} else {
 		// 没有传入时间字符串和格式，使用当前时间
-		fmt.Println("wu时间格式")
+		log.Println("GetTimestamp-wu时间格式")
 		parsedTime = time.Now()
 	}
 
@@ -137,13 +138,13 @@ func IsImg(suffix string) bool {
 func ReadQRCode(filename string) (content string) {
 	fi, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("readQrcode" + err.Error())
+		log.Println("readQrcode" + err.Error())
 		return
 	}
 	defer fi.Close()
 	qrmatrix, err := qrcodeReader.Decode(fi)
 	if err != nil {
-		fmt.Println("readQrcode:" + err.Error())
+		log.Println("readQrcode:" + err.Error())
 		return
 	}
 	return qrmatrix.Content
@@ -153,10 +154,10 @@ func GenerateRandomPassword(length int) (string, error) {
 	// 可用于生成密码的字符集
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:,.<>?"
 	charsetLength := big.NewInt(int64(len(charset)))
-	
+
 	// 创建一个随机密码的切片
 	password := make([]byte, length)
-	
+
 	for i := 0; i < length; i++ {
 		// 生成一个随机的索引，用于选择字符集中的字符
 		randomIndex, err := rand.Int(rand.Reader, charsetLength)
@@ -165,7 +166,7 @@ func GenerateRandomPassword(length int) (string, error) {
 		}
 		password[i] = charset[randomIndex.Int64()]
 	}
-	
+
 	return string(password), nil
 }
 
@@ -205,25 +206,24 @@ func WriteInFile(imageReader io.Reader) (bool, string) {
 	// 创建一个文件用于保存图片
 	outputFile, err := os.Create(fileName)
 	if err != nil {
-		fmt.Println("Error creating output file:", err)
+		log.Println("Error creating output file:", err)
 		return false, ""
 	}
 	defer outputFile.Close()
 
 	// 将 imageReader 重新定位到开头
 	if _, err := imageReader.(*bytes.Reader).Seek(0, 0); err != nil {
-		fmt.Println("Error seeking imageReader:", err)
+		log.Println("Error seeking imageReader:", err)
 		return false, ""
 	}
 
 	// 使用 io.Copy 将数据从 io.Reader 复制到文件
 	_, copyErr := io.Copy(outputFile, imageReader)
 	if copyErr != nil {
-		fmt.Println("Error copying data to file:", copyErr)
+		log.Println("Error copying data to file:", copyErr)
 		return false, ""
 	}
 
-	fmt.Println("Image saved as " + fileName)
+	log.Println("Image saved as " + fileName)
 	return true, fileName
 }
-

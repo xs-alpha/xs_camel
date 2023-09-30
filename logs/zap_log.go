@@ -9,6 +9,14 @@ import (
 var logFile = "./logs/running.log"
 
 func SetupLogger() {
+	// 检查 ./logs 文件夹是否存在，如果不存在则创建它
+	if _, err := os.Stat("./logs"); os.IsNotExist(err) {
+		err := os.MkdirAll("./logs", os.ModePerm)
+		if err != nil {
+			log.Println("创建日志文件夹失败:", err)
+			return
+		}
+	}
 	logFileLocation, _ := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0744)
 	log.SetOutput(logFileLocation)
 }

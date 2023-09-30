@@ -21,3 +21,4 @@ PRIMARY KEY (`accessory_price_query_id`)
 33
 44
 5555
+fyne package -os windows -icon main.ico

@@ -14,9 +14,9 @@ import (
 	"xiaosheng/tools"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	qrcodeGenerate "github.com/skip2/go-qrcode"
 )
@@ -134,6 +134,7 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 							qrwin.Close()
 						} else {
 							wetout.SetText("二维码 保存失败")
+							qrwin.Close()
 						}
 					}))
 					qrwin.SetContent(qrctn)

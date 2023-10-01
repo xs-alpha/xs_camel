@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"fyne.io/fyne/v2/widget"
 	"io"
 	"log"
 	"math/big"
@@ -248,4 +249,18 @@ func WriteInFile(imageReader io.Reader) (bool, string) {
 
 	log.Println("Image saved as " + fileName)
 	return true, fileName
+}
+
+// MonitorCase 转大写
+func MonitorCase(ticker <-chan time.Time, wetres *widget.Entry) {
+	for {
+		select {
+		case <-ticker:
+			if !IsLowerCase {
+				wetres.SetText(strings.ToLower(wetres.Text))
+			} else {
+				wetres.SetText(strings.ToUpper(wetres.Text))
+			}
+		}
+	}
 }

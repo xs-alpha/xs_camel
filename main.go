@@ -22,7 +22,7 @@ func main() {
 	myApp := app.New()
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
-	myWindow := myApp.NewWindow("小生 开发助手v0.4")
+	myWindow := myApp.NewWindow("小生 开发助手v0.5")
 
 	resultEntry := widget.NewEntry()
 	resultEntry.MultiLine = true

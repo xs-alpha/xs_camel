@@ -2,51 +2,58 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"xiaosheng/logs"
+	"xiaosheng/views"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"xiaosheng/views"
 )
 
 func main() {
+	// 初始化日志
+	logs.SetupLogger()
+	go logs.MonitorFileSize(200 * 1024 * 1024)
+
 	myApp := app.New()
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
-	myWindow := myApp.NewWindow("剪贴板监听器")
+	myWindow := myApp.NewWindow("小生 开发助手v0.31")
 
 	resultEntry := widget.NewEntry()
 	resultEntry.MultiLine = true
 	resultEntry.Disable()
 	// 创建复选框
 	checkBox := widget.NewCheck("监听剪贴板", func(value bool) {
-		fmt.Println("flag:", value)
+		log.Println("监听 剪切板：flag:", value)
 		views.ShouldListenClipboard = value // 设置标志来表示是否要监听剪贴板
 	})
 
 	// 创建一个标签
-	madeByLabel := widget.NewLabel("@xiaosheng : blog.devilwst.top")
+	madeByLabel := widget.NewLabel("	  @xiaosheng 	 ")
+	toolsLabel := widget.NewLabel("	   小工具")
 
-	// 创建一个自定义的 TextStyle 结构，并设置字体大小
-	customTextStyle := fyne.TextStyle{
-		Bold:      false,
-		Italic:    true,
-		Monospace: false, // 可根据需要设置其他样式
-	}
 	// 将自定义的 TextStyle 应用到标签的 TextStyle 属性上
 	go views.StartClipboardListener(resultEntry)
-	madeByLabel.TextStyle = customTextStyle
-
-	content := container.NewVBox(
-		widget.NewLabel("选择是否监听剪贴板："),
+	toolBtn := views.CreatToolBtn(myApp)
+	content := container.New(
+		layout.NewVBoxLayout(),
+		widget.NewLabel("开启camel转换："),
 		checkBox,
 		resultEntry, // 添加文本框
+		toolsLabel,
+		toolBtn,
 		madeByLabel,
 	)
 
-	myWindow.SetContent(content)
-	myWindow.Resize(fyne.NewSize(300, 200))
-	myWindow.SetFixedSize(true)
+	sqlParseContent := views.SqlContent(myApp, &myWindow)
+
+	myWindow.SetContent(container.New(layout.NewHBoxLayout(), content, sqlParseContent))
+	myWindow.Resize(fyne.NewSize(500, 300))
+	myWindow.Content().Size().Max(fyne.NewSize(1920, 1000))
+	//myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()
 }

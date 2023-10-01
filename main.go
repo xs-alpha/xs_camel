@@ -4,6 +4,7 @@ package main
 import (
 	"log"
 	"xiaosheng/logs"
+	"xiaosheng/tools"
 	"xiaosheng/views"
 
 	"fyne.io/fyne/v2"
@@ -21,7 +22,7 @@ func main() {
 	myApp := app.New()
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
-	myWindow := myApp.NewWindow("小生 开发助手v0.31")
+	myWindow := myApp.NewWindow("小生 开发助手v0.4")
 
 	resultEntry := widget.NewEntry()
 	resultEntry.MultiLine = true
@@ -31,6 +32,12 @@ func main() {
 		log.Println("监听 剪切板：flag:", value)
 		views.ShouldListenClipboard = value // 设置标志来表示是否要监听剪贴板
 	})
+	camelBox := widget.NewCheck("大驼峰", func(value bool) {
+		log.Println("大驼峰：flag:", value)
+		tools.IsBigCamel = value // 设置标志来表示是否要监听剪贴板
+	})
+
+	checkBoxContainer := container.NewHBox(checkBox, camelBox)
 
 	// 创建一个标签
 	madeByLabel := widget.NewLabel("	  @xiaosheng 	 ")
@@ -42,7 +49,7 @@ func main() {
 	content := container.New(
 		layout.NewVBoxLayout(),
 		widget.NewLabel("开启camel转换："),
-		checkBox,
+		checkBoxContainer,
 		resultEntry, // 添加文本框
 		toolsLabel,
 		toolBtn,

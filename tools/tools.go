@@ -42,7 +42,7 @@ func StmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) ([]string, 
 
 	// header := fmt.Sprintf("package %s\n", pkgName)
 
-	structName := snakeCaseToCamel(tableName)
+	structName := ToCamelCase(tableName)
 	structStart := fmt.Sprintf("type %s struct { \n", structName)
 	builder.WriteString(structStart)
 	ret := make([]string, 0)
@@ -51,7 +51,7 @@ func StmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) ([]string, 
 
 		goType := sqlTypeMap[columnType]
 
-		field := snakeCaseToCamel(col.Name.String())
+		field := ToCamelCase(col.Name.String())
 		retStr := field + ", " + goType
 		comment := col.Type.Comment
 		if comment == nil {
@@ -72,9 +72,8 @@ func StmtToGo(stmt *sqlparser.DDL, tableName string, pkgName string) ([]string, 
 	return ret, nil
 }
 
-// In sql, table name often is snake_case
-// In Go, struct name often is camel case
-func snakeCaseToCamel(str string) string {
+// SnakeCaseToCamel 驼峰转换
+func SnakeCaseToCamel(str string) string {
 	builder := strings.Builder{}
 	shouldCapitalize := false
 
@@ -94,9 +93,26 @@ func snakeCaseToCamel(str string) string {
 	return builder.String()
 }
 
-/**
-GetTimestamp 根据传入的时间字符串和格式获取时间戳，如果未传入则返回当前时间戳。
-*/
+// ToCamelCase 驼峰转换
+func ToCamelCase(text string) string {
+	// 根据 isBigCamel 参数决定生成的是大驼峰还是小驼峰
+	parts := strings.Split(text, "_")
+	camelCase := ""
+	for i, part := range parts {
+		if i == 0 {
+			if IsBigCamel {
+				camelCase += strings.Title(part)
+			} else {
+				camelCase += strings.ToLower(part)
+			}
+		} else {
+			camelCase += strings.Title(part)
+		}
+	}
+	return camelCase
+}
+
+// GetTimestamp 根据传入的时间字符串和格式获取时间戳，如果未传入则返回当前时间戳。
 func GetTimestamp(timeStr, layout string) (int64, error) {
 	var parsedTime time.Time
 	var err error
@@ -125,6 +141,7 @@ func IsTimeFormat(str, layout string) bool {
 	return err == nil
 }
 
+// IsImg 是否是图片
 func IsImg(suffix string) bool {
 	suffixs := []string{".png", ".jpeg", ".webp", ".jpg"}
 	for _, v := range suffixs {
@@ -150,6 +167,7 @@ func ReadQRCode(filename string) (content string) {
 	return qrmatrix.Content
 }
 
+// GenerateRandomPassword 生成随机密码
 func GenerateRandomPassword(length int) (string, error) {
 	// 可用于生成密码的字符集
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:,.<>?"
@@ -170,10 +188,13 @@ func GenerateRandomPassword(length int) (string, error) {
 	return string(password), nil
 }
 
+// IsNumeric 字符串是否是数字
 func IsNumeric(str string) bool {
 	_, err := strconv.Atoi(str)
 	return err == nil
 }
+
+// PrettyPrintJSON json美化
 func PrettyPrintJSON(data interface{}) (string, error) {
 	// MarshalIndent 函数用于将数据转换为美化的 JSON 字符串
 	prettyJSON, err := json.MarshalIndent(data, "", "    ")
@@ -183,6 +204,7 @@ func PrettyPrintJSON(data interface{}) (string, error) {
 	return string(prettyJSON), nil
 }
 
+// CountValidWords 计算词数
 func CountValidWords(text string) int {
 	count := 0
 

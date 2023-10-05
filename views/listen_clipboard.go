@@ -2,7 +2,6 @@
 package views
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -44,12 +43,10 @@ func StartClipboardListener(resultEntry *widget.Entry, ticker *time.Ticker) {
 	for {
 		select {
 		case <-ticker.C:
-			fmt.Println("i2222")
 			if ShouldListenClipboard {
 				// 读取剪贴板内容
 				clipboardText, _ := clipboard.ReadAll()
 				originText := clipboardText
-				fmt.Println("1111")
 
 				// 判断剪贴板内容是否是英文或下划线连接
 				if isEnglishOrUnderscore(clipboardText) {
@@ -89,7 +86,6 @@ func ListenClipBordPart(myApp fyne.App) *fyne.Container {
 			// 将自定义的 TextStyle 应用到标签的 TextStyle 属性上
 			ticker = time.NewTicker(70 * time.Millisecond)
 			go StartClipboardListener(resultEntry, ticker)
-			defer ticker.Stop()
 		} else {
 			log.Println("关闭监听剪贴板")
 			ticker.Stop()
@@ -104,7 +100,6 @@ func ListenClipBordPart(myApp fyne.App) *fyne.Container {
 			logs.SetupLogger()
 			logTicker = time.NewTicker(5 * time.Second)
 			go logs.MonitorFileSize(200*1024*1024, logTicker)
-			defer ticker.Stop()
 		} else {
 			log.Println("关闭日志")
 			logs.CloseLogger()

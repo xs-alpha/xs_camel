@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -9,6 +10,7 @@ import (
 var logFile = "./logs/running.log"
 
 func SetupLogger() {
+	fmt.Println("开启日志")
 	// 检查 ./logs 文件夹是否存在，如果不存在则创建它
 	if _, err := os.Stat("./logs"); os.IsNotExist(err) {
 		err := os.MkdirAll("./logs", os.ModePerm)
@@ -21,10 +23,13 @@ func SetupLogger() {
 	log.SetOutput(logFileLocation)
 }
 
-func MonitorFileSize(maxSize int64) {
-	ticker := time.NewTicker(50 * time.Second) // 每隔50秒检查一次文件大小
-	defer ticker.Stop()
+func CloseLogger() {
+	fmt.Println("关闭日志")
+	// 将日志输出设置为 os.Stderr，这会关闭日志输出
+	log.SetOutput(os.Stderr)
+}
 
+func MonitorFileSize(maxSize int64, ticker *time.Ticker) {
 	for {
 		select {
 		case <-ticker.C:

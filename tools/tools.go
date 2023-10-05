@@ -104,7 +104,7 @@ func ToCamelCase(text string) string {
 			if IsBigCamel {
 				camelCase += strings.Title(part)
 			} else {
-				camelCase += strings.ToLower(part)
+				camelCase += strings.ToLower(part[:1]) + part[1:]
 			}
 		} else {
 			camelCase += strings.Title(part)
@@ -252,10 +252,10 @@ func WriteInFile(imageReader io.Reader) (bool, string) {
 }
 
 // MonitorCase 转大写
-func MonitorCase(ticker <-chan time.Time, wetres *widget.Entry) {
+func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 	for {
 		select {
-		case <-ticker:
+		case <-ticker.C:
 			if !IsLowerCase {
 				wetres.SetText(strings.ToLower(wetres.Text))
 			} else {

@@ -37,8 +37,9 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 		wetres.SetMinRowsVisible(4)
 		wetres.PlaceHolder = "result"
 
-		ticker := time.Tick(90 * time.Millisecond)
+		ticker := time.NewTicker(100 * time.Millisecond)
 
+		defer ticker.Stop()
 		go tools.MonitorCase(ticker, wetres)
 
 		cbox := container.NewHBox(

@@ -3,14 +3,15 @@ package tools
 import "fyne.io/fyne/v2/widget"
 
 var (
-	SqlStatement string
-	SqlColumns   []string
-	SelectedRows []string
-	SelectedText string
-	IsAppended   bool
-	ListBox      *widget.CheckGroup
-	IsBigCamel   bool
-	IsLowerCase  bool
+	SqlStatement     string
+	SqlColumns       []string
+	SelectedRows     []string
+	SelectedText     string
+	IsAppended       bool
+	ListBox          *widget.CheckGroup
+	IsBigCamel       bool
+	IsLowerCase      bool
+	NoMoreChooseInfo bool
 
 	// base64
 	Base64Origin string

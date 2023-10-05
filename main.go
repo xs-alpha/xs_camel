@@ -28,7 +28,7 @@ func main() {
 	myApp := app.New()
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
-	myWindow := myApp.NewWindow("小生 开发助手v0.7")
+	myWindow := myApp.NewWindow("小生 开发助手v" + settings.Conf.SoftVersion)
 
 	// 左侧监听剪贴板
 	content := views.ListenClipBordPart(myApp)

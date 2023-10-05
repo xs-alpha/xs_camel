@@ -13,6 +13,7 @@ type Appconfig struct {
 	DownLoadUrl string `mapstructure:"downloadUrl"`
 	ToolName    string `mapstructure:"toolName"`
 	ToolMd5     string `mapstructure:"toolMd5"`
+	SoftVersion string `mapstructure:"softVersion"`
 }
 
 func Init(file string) (err error) {

@@ -28,7 +28,7 @@ import (
 
 func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 	toolBtn := widget.NewButton("点击打开小工具", func() {
-		tw := myApp.NewWindow("小工具")
+		tw := myApp.NewWindow("小生开发助手——小工具v" + settings.Conf.SoftVersion)
 
 		wetin := widget.NewMultiLineEntry()
 		wetin.SetMinRowsVisible(10)
@@ -72,6 +72,29 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				log.Println("md5-output:", fmt.Sprintf("%x", sum))
 				wetout.SetText(fmt.Sprintf("%x", sum))
 				wetres.SetText(fmt.Sprintf("%x", sum))
+			}),
+			widget.NewButton("文件md5", func() {
+				dia := dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
+					if err != nil {
+						log.Println("newOpenFileFolder:", err.Error())
+						return
+					}
+					if uc == nil || uc.URI() == nil {
+						return
+					}
+					filePath := uc.URI().Path()
+					log.Println("path:", filePath)
+					fileMd5, md5Err := tools.CalculateMD5(filePath)
+					if md5Err != nil {
+						wetout.SetText("生成文件md5失败啦, err:" + md5Err.Error())
+						return
+					} else {
+						wetout.SetText(uc.URI().Name() + " - 文件md5:" + fileMd5)
+						wetres.SetText(fileMd5)
+					}
+					log.Println("path:", fileMd5)
+				}, tw)
+				dia.Show()
 			}),
 			widget.NewButton("urlEncode", func() {
 				log.Println("urlEncode-input:", wetin.Text)
@@ -258,6 +281,30 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					cmd.Start()
 				}
 
+			}),
+			widget.NewButton("随机选择", func() {
+				if !tools.NoMoreChooseInfo {
+					cow := myApp.NewWindow("提示")
+					conl := widget.NewLabel("选择困难症福音!!!")
+					com := widget.NewMultiLineEntry()
+					com.SetMinRowsVisible(10)
+					com.SetText("点击确定后\n在原文位置输入内容，\n多个选择请换行分割")
+					cowck := widget.NewCheck("不再提示", func(b bool) {
+						tools.NoMoreChooseInfo = b
+					})
+					wbtn := widget.NewButton("确定", func() {
+						cow.Close()
+					})
+					cow.SetContent(container.NewVBox(conl, com, cowck, wbtn))
+					cow.Resize(fyne.NewSize(200, 200))
+					cow.Show()
+				}
+
+				lines := strings.Split(wetin.Text, "\n")
+				log.Println("parse choices:", lines)
+				randomString, _ := tools.GetRandomString(lines)
+				wetout.SetText("帮您做出了选择：" + randomString)
+				wetres.SetText(randomString)
 			}),
 		)
 		cn := container.NewVBox(wetin, cbox, cboxImg, cboxPro, wetout, wetres)

@@ -2,13 +2,16 @@ package tools
 
 import (
 	"bytes"
-	"crypto/rand"
+	"crypto/md5"
+	rand "crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"fyne.io/fyne/v2/widget"
 	"io"
 	"log"
 	"math/big"
+	mrand "math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -325,4 +328,43 @@ func DownloadFile(url, fileName string) bool {
 
 	log.Println("File downloaded successfully.")
 	return true
+}
+
+// CalculateMD5 计算md5
+func CalculateMD5(filePath string) (string, error) {
+	// 打开文件
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	// 创建一个 MD5 哈希对象
+	hash := md5.New()
+
+	// 从文件中读取数据并计算哈希值
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+
+	// 将哈希值转换为十六进制字符串
+	hashBytes := hash.Sum(nil)
+	hashString := hex.EncodeToString(hashBytes)
+
+	return hashString, nil
+}
+
+// GetRandomString 随机选择
+func GetRandomString(lines []string) (string, error) {
+	// 使用当前时间的纳秒级时间戳作为随机种子
+	seed := time.Now().UnixNano()
+
+	// 设置随机种子
+	mrand.Seed(seed)
+
+	// 生成随机索引
+	randomIndex := mrand.Intn(len(lines))
+	randomLine := lines[randomIndex]
+
+	return randomLine, nil
 }

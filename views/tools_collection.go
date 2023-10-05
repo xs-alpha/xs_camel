@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 	"xiaosheng/tools"
 
 	"fyne.io/fyne/v2"
@@ -31,13 +32,22 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 		wetin.PlaceHolder = "原文"
 		wetout := widget.NewMultiLineEntry()
 		wetout.SetMinRowsVisible(10)
-		wetout.PlaceHolder = "密文"
+		wetout.PlaceHolder = "result"
+		wetres := widget.NewMultiLineEntry()
+		wetres.SetMinRowsVisible(4)
+		wetres.PlaceHolder = "result"
+
+		ticker := time.Tick(90 * time.Millisecond)
+
+		go tools.MonitorCase(ticker, wetres)
+
 		cbox := container.NewHBox(
 			widget.NewButton("base64加密", func() {
 				tools.Base64Origin = wetin.Text
 				encoded := base64.StdEncoding.EncodeToString([]byte(tools.Base64Origin))
 				log.Println("base64-encoded:", encoded)
 				wetout.SetText(encoded)
+				wetres.SetText(encoded)
 			}),
 			widget.NewButton("base64解密", func() {
 				tools.Base64Encode = wetout.Text
@@ -45,30 +55,35 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				decoded, _ := base64.StdEncoding.DecodeString(tools.Base64Encode)
 				log.Println("base64-decoded:", string(decoded))
 				wetin.SetText(string(decoded))
+				wetres.SetText(string(decoded))
 			}),
 			widget.NewButton("sha256加密", func() {
 				log.Println("sha256-encoded-input:", wetin.Text)
 				h := sha256.Sum256([]byte(wetin.Text))
 				log.Println("base64-decoded:", fmt.Sprintf("%x", h))
 				wetout.SetText(fmt.Sprintf("%x", h))
+				wetres.SetText(fmt.Sprintf("%x", h))
 			}),
 			widget.NewButton("md5", func() {
 				log.Println("md5-input:", wetin.Text)
 				sum := md5.Sum([]byte(wetin.Text))
 				log.Println("md5-output:", fmt.Sprintf("%x", sum))
 				wetout.SetText(fmt.Sprintf("%x", sum))
+				wetres.SetText(fmt.Sprintf("%x", sum))
 			}),
 			widget.NewButton("urlEncode", func() {
 				log.Println("urlEncode-input:", wetin.Text)
 				sum := url.QueryEscape(wetin.Text)
 				log.Println("urlEncode-output:,", sum)
 				wetout.SetText(sum)
+				wetres.SetText(sum)
 			}),
 			widget.NewButton("urlDecode", func() {
 				log.Println("urlDecode-input:", wetout.Text)
 				out, _ := url.QueryUnescape(wetout.Text)
 				log.Println("urlDecode-output:", out)
 				wetout.SetText(out)
+				wetres.SetText(out)
 			}),
 			widget.NewButton("时间戳", func() {
 				isTime := tools.IsTimeFormat(wetin.Text, "2006-01-02 15:04:05")
@@ -81,8 +96,10 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				log.Println("时间戳-output:", strconv.FormatInt(timestamp, 10))
 				if isTime {
 					wetout.SetText("时间戳： " + strconv.FormatInt(timestamp, 10))
+					wetres.SetText("时间戳： " + strconv.FormatInt(timestamp, 10))
 				} else {
 					wetout.SetText("当前时间戳： " + strconv.FormatInt(timestamp, 10))
+					wetres.SetText("当前时间戳： " + strconv.FormatInt(timestamp, 10))
 				}
 			}),
 		)
@@ -110,6 +127,7 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					res := tools.ReadQRCode(path)
 					log.Println("res:", res)
 					wetout.SetText("解析 成功-- 解析内容为： " + res)
+					wetres.SetText(res)
 				}, tw)
 				dia.Show()
 			}),
@@ -157,6 +175,7 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				hashedString := fmt.Sprintf("%x", hashedBytes)
 				log.Println("sha512-output:", hashedString)
 				wetout.SetText(hashedString)
+				wetres.SetText(hashedString)
 			}),
 			widget.NewButton("随机密码", func() {
 				wetin.PlaceHolder = "可以输入要生成的随机密码长度，不输入默认取8"
@@ -168,6 +187,7 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					pwd, _ = tools.GenerateRandomPassword(leng)
 				}
 				wetout.SetText("生成随记密码:" + pwd)
+				wetres.SetText(pwd)
 				log.Println("password-output:", pwd)
 			}),
 			widget.NewButton("json美化", func() {
@@ -185,15 +205,21 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				}
 				log.Println("json美化：" + prettyJson)
 				wetout.SetText(prettyJson)
+				wetres.SetText(prettyJson)
 			}),
 			widget.NewButton("字数统计", func() {
 				log.Println("字数统计-input:", wetin.Text)
 				num := tools.CountValidWords(wetin.Text)
 				log.Println("字数统计-output:%d", num)
 				wetout.SetText("字数统计(不统计空格):" + strconv.Itoa(num))
+				wetres.SetText(strconv.Itoa(num))
+			}),
+			widget.NewCheck("转大写", func(value bool) {
+				log.Println("大小写：flag:", value)
+				tools.IsLowerCase = value // 设置标志来表示是否要监听剪贴板
 			}),
 		)
-		cn := container.NewVBox(wetin, cbox, cboxImg, wetout)
+		cn := container.NewVBox(wetin, cbox, cboxImg, wetout, wetres)
 		tw.SetContent(cn)
 		tw.Resize(fyne.NewSize(300, 300))
 		tw.Show()

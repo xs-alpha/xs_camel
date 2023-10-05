@@ -9,6 +9,8 @@ var (
 	SelectedText string
 	IsAppended   bool
 	ListBox      *widget.CheckGroup
+	IsBigCamel   bool
+	IsLowerCase  bool
 
 	// base64
 	Base64Origin string

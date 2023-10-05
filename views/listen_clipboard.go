@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"xiaosheng/tools"
 )
 
 var (
@@ -32,16 +33,6 @@ func isEnglishOrUnderscore(text string) bool {
 	return matched
 }
 
-func toCamelCase(text string) string {
-	// 将下划线连接的字符串转换为驼峰命名
-	parts := strings.Split(text, "_")
-	camelCase := parts[0]
-	for i := 1; i < len(parts); i++ {
-		camelCase += strings.Title(parts[i])
-	}
-	return camelCase
-}
-
 func StartClipboardListener(resultEntry *widget.Entry) {
 	go func() {
 		for {
@@ -53,7 +44,7 @@ func StartClipboardListener(resultEntry *widget.Entry) {
 				// 判断剪贴板内容是否是英文或下划线连接
 				if isEnglishOrUnderscore(clipboardText) {
 					// 如果是下划线连接的字符串，将其转换为驼峰命名
-					camelCase := toCamelCase(clipboardText)
+					camelCase := tools.ToCamelCase(clipboardText)
 
 					if originText != camelCase {
 						// 将转换后的内容复制回剪贴板

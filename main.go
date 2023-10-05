@@ -2,6 +2,9 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"xiaosheng/settings"
 	"xiaosheng/views"
 
 	"fyne.io/fyne/v2"
@@ -11,10 +14,21 @@ import (
 )
 
 func main() {
+	// 初始化配置文件
+	var file string
+	var size int
+	flag.IntVar(&size, "size", 200, "文件大小")
+	flag.StringVar(&file, "configFile", "config.yaml", "配置文件")
+	flag.Parse()
+	if err := settings.Init(file); err != nil {
+		fmt.Printf("main: viper initiallize failed :%v\n", err.Error())
+		return
+	}
+	// 配置窗口
 	myApp := app.New()
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
-	myWindow := myApp.NewWindow("小生 开发助手v0.6")
+	myWindow := myApp.NewWindow("小生 开发助手v0.7")
 
 	// 左侧监听剪贴板
 	content := views.ListenClipBordPart(myApp)

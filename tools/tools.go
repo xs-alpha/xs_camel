@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"math/big"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -264,4 +265,64 @@ func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 			}
 		}
 	}
+}
+
+// IsFileNameExists 某个文件是否存在
+func IsFileNameExists(fileName string) bool {
+	// 获取当前工作目录
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error getting current directory:", err)
+		return false
+	}
+
+	// 拼接文件路径
+	exePath := currentDir + "\\" + fileName
+
+	// 检查文件是否存在
+	_, err = os.Stat(exePath)
+	if os.IsNotExist(err) {
+		log.Println(fileName + " does not exist in the current directory.")
+		return false
+	} else if err != nil {
+		log.Println("Error checking :", err)
+		return false
+	} else {
+		fmt.Println(fileName + " exists in the current directory.")
+		return true
+	}
+}
+
+// DownloadFile 下载文件并保存到本地
+func DownloadFile(url, fileName string) bool {
+	// 发送 GET 请求
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Println("Error:", err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("HTTP request failed with status code %d\n", resp.StatusCode)
+		return false
+	}
+
+	// 创建本地文件用于保存下载的内容
+	file, err := os.Create(fileName)
+	if err != nil {
+		log.Println("Error creating file:", err)
+		return false
+	}
+	defer file.Close()
+
+	// 将下载的内容保存到本地文件
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		log.Println("Error saving file:", err)
+		return false
+	}
+
+	log.Println("File downloaded successfully.")
+	return true
 }

@@ -10,9 +10,12 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
+	"xiaosheng/settings"
 	"xiaosheng/tools"
 
 	"fyne.io/fyne/v2"
@@ -218,7 +221,46 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				tools.IsLowerCase = value // 设置标志来表示是否要监听剪贴板
 			}),
 		)
-		cn := container.NewVBox(wetin, cbox, cboxImg, wetout, wetres)
+		cboxPro := container.NewHBox(
+			widget.NewButton("二维码解析增强版", func() {
+				// 文件不存在，提示可以下载
+				toolName := settings.Conf.ToolName
+				toolUrl := settings.Conf.DownLoadUrl
+				toolMd5 := settings.Conf.ToolMd5
+				if !tools.IsFileNameExists(toolName) {
+					sew := myApp.NewWindow("下载增强工具")
+					wn := widget.NewLabel("是否下载增强工具——大小为465kb")
+					toolbtn := widget.NewButton("点击下载工具", func() {
+						msg := ""
+						if !tools.IsFileNameExists(toolName) {
+							if tools.DownloadFile(toolUrl, toolName) {
+								msg = "下载工具成功！，关闭窗口即可。\n校验md5:" + toolMd5
+							} else {
+								msg = "下载工具失败，请检查网络后重试, \n或者打开项目git地址检查是否是最新版本 \n项目地址：https://github.com/xs-alpha/xs_camel！"
+							}
+						} else {
+							msg = "当前工具已经存在啦，咋地，还不放心嘛？\n不放心就校验一下md5吧：" + toolMd5
+						}
+						dw := myApp.NewWindow("下载反馈！")
+						dww := widget.NewLabel(msg)
+						dw.Resize(fyne.NewSize(200, 200))
+						dw.SetContent(dww)
+						dw.Show()
+
+					})
+					sew.SetContent(container.NewVBox(wn, toolbtn))
+					sew.Show()
+				} else {
+					// 文件存在
+					currentDir, _ := os.Getwd()
+					exePath := currentDir + "\\" + toolName
+					cmd := exec.Command(exePath)
+					cmd.Start()
+				}
+
+			}),
+		)
+		cn := container.NewVBox(wetin, cbox, cboxImg, cboxPro, wetout, wetres)
 		tw.SetContent(cn)
 		tw.Resize(fyne.NewSize(300, 300))
 		tw.Show()

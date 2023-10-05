@@ -72,6 +72,7 @@ func StartClipboardListener(resultEntry *widget.Entry, ticker *time.Ticker) {
 }
 
 func ListenClipBordPart(myApp fyne.App) *fyne.Container {
+
 	resultEntry := widget.NewEntry()
 	resultEntry.MultiLine = true
 	resultEntry.Disable()

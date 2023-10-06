@@ -209,6 +209,10 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					pwd, _ = tools.GenerateRandomPassword(8)
 				} else {
 					leng, _ := strconv.Atoi(wetin.Text)
+					if leng > 1700 {
+						wetout.SetText("/**\n大哥，过分了，\n这么长的密码你能记得住吗，\n收手吧阿祖\n**/")
+						return
+					}
 					pwd, _ = tools.GenerateRandomPassword(leng)
 				}
 				wetout.SetText("生成随记密码:" + pwd)

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"xiaosheng/tools"
 )
 
 var logFile = "./logs/running.log"
@@ -56,6 +57,8 @@ func MonitorFileSize(maxSize int64, ticker *time.Ticker) {
 			} else {
 				log.Printf("当前大小：%d, 最大大小:%d, 未超过限制", fileSize, maxSize)
 			}
+			case <-tools.LogChan:
+			    return
 		}
 	}
 }

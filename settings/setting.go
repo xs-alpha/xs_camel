@@ -23,7 +23,7 @@ func Init(file string) (err error) {
 		Conf.DownLoadUrl = "http://powernod.com/u/718433caa9a32077"
 		Conf.ToolName = "小生——QR增强.exe"
 		Conf.ToolMd5 = "77411af8d866d163be773a86dbbe1c24"
-		Conf.SoftVersion = "0.81"
+		Conf.SoftVersion = "0.82"
 		log.Printf("配置文件 %s 不存在，使用默认配置。\n", file)
 		return nil
 	} else {

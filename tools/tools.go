@@ -258,6 +258,7 @@ func WriteInFile(imageReader io.Reader) (bool, string) {
 // MonitorCase 转大写
 func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 	defer ticker.Stop()
+	defer close(ToolsChan)
 	for {
 		select {
 		case <-ticker.C:
@@ -266,6 +267,8 @@ func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 			} else {
 				wetres.SetText(strings.ToUpper(wetres.Text))
 			}
+		case <-ToolsChan:
+		    return
 		}
 	}
 }

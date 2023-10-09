@@ -41,7 +41,9 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 		wetres.PlaceHolder = "result"
 
 		ticker := time.NewTicker(100 * time.Millisecond)
+		tools.ToolsChan = make(chan int, 1)
 		go tools.MonitorCase(ticker, wetres)
+		//defer close(tools.ToolsChan)
 
 		cbox := container.NewHBox(
 			widget.NewButton("base64加密", func() {
@@ -209,6 +211,10 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					pwd, _ = tools.GenerateRandomPassword(8)
 				} else {
 					leng, _ := strconv.Atoi(wetin.Text)
+					if leng > 1700 {
+						wetout.SetText("/**\n大哥，过分了，\n这么长的密码你能记得住吗，\n收手吧阿祖\n**/")
+						return
+					}
 					pwd, _ = tools.GenerateRandomPassword(leng)
 				}
 				wetout.SetText("生成随记密码:" + pwd)
@@ -311,6 +317,11 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 		tw.SetContent(cn)
 		tw.Resize(fyne.NewSize(300, 300))
 		tw.Show()
+		// 回调函数
+		tw.SetOnClosed(func() {
+			log.Println("关闭小工具的大小写转换通道")
+			close(tools.ToolsChan)
+		})
 
 	})
 	return toolBtn

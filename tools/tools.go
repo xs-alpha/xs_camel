@@ -266,6 +266,9 @@ func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 			} else {
 				wetres.SetText(strings.ToUpper(wetres.Text))
 			}
+		case <-ToolsChan:
+			log.Println("关闭大小写chan")
+			return
 		}
 	}
 }

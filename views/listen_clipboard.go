@@ -67,6 +67,9 @@ func StartClipboardListener(resultEntry *widget.Entry, ticker *time.Ticker) {
 				//time.Sleep(300 * time.Millisecond) // 不监听剪贴板时，降低CPU负载
 				resultEntry.SetText("休眠中。。。") // 清空文本框
 			}
+		case <-tools.ClipBoardChan:
+			log.Println("关闭剪贴板通道chan")
+			return
 		}
 	}
 }
@@ -86,10 +89,12 @@ func ListenClipBordPart(myApp fyne.App) *fyne.Container {
 		if value {
 			// 将自定义的 TextStyle 应用到标签的 TextStyle 属性上
 			ticker = time.NewTicker(70 * time.Millisecond)
+			tools.ClipBoardChan = make(chan int, 1)
 			go StartClipboardListener(resultEntry, ticker)
 		} else {
 			log.Println("关闭监听剪贴板")
 			ticker.Stop()
+			close(tools.ClipBoardChan)
 		}
 	})
 	logCheckBox := widget.NewCheck("isLog", func(value bool) {
@@ -100,11 +105,13 @@ func ListenClipBordPart(myApp fyne.App) *fyne.Container {
 			// 初始化日志
 			logs.SetupLogger()
 			logTicker = time.NewTicker(5 * time.Second)
+			tools.LogChan = make(chan int, 1)
 			go logs.MonitorFileSize(200*1024*1024, logTicker)
 		} else {
 			log.Println("关闭日志")
 			logs.CloseLogger()
 			logTicker.Stop()
+			close(tools.LogChan)
 		}
 	})
 	camelBox := widget.NewCheck("大驼峰", func(value bool) {

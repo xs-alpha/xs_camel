@@ -13,6 +13,11 @@ var (
 	IsLowerCase      bool
 	NoMoreChooseInfo bool
 
+	// chan
+	LogChan = make(chan int,1)
+	ClipBoardChan = make(chan int,1)
+	ToolsChan = make(chan int,1)
+
 	// base64
 	Base64Origin string
 	Base64Encode string

@@ -57,8 +57,9 @@ func MonitorFileSize(maxSize int64, ticker *time.Ticker) {
 			} else {
 				log.Printf("当前大小：%d, 最大大小:%d, 未超过限制", fileSize, maxSize)
 			}
-			case <-tools.LogChan:
-			    return
+		case <-tools.LogChan:
+			log.Println("关闭日志通道chan")
+			return
 		}
 	}
 }

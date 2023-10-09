@@ -258,7 +258,6 @@ func WriteInFile(imageReader io.Reader) (bool, string) {
 // MonitorCase 转大写
 func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 	defer ticker.Stop()
-	defer close(ToolsChan)
 	for {
 		select {
 		case <-ticker.C:
@@ -268,7 +267,8 @@ func MonitorCase(ticker *time.Ticker, wetres *widget.Entry) {
 				wetres.SetText(strings.ToUpper(wetres.Text))
 			}
 		case <-ToolsChan:
-		    return
+			log.Println("关闭大小写chan")
+			return
 		}
 	}
 }

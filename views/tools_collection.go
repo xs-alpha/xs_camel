@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"xiaosheng/settings"
 	"xiaosheng/tools"
@@ -25,6 +26,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 	qrcodeGenerate "github.com/skip2/go-qrcode"
 )
+
+var wg  sync.WaitGroup
 
 func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 	toolBtn := widget.NewButton("点击打开小工具", func() {
@@ -316,8 +319,69 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				log.Println("翻译-input:", wetin.Text)
 				wetout.SetText("")
 				wetres.SetText("")
+				if wetin.Text==""{
+					wetout.SetText("嘿girl,输入内容呀！")
+					return
+				}
 				tools.TransLate(wetin.Text, wetout,wetres)
 			}),
+			widget.NewButton("翻译增强", func() {
+			    if !tools.FileExists(settings.Conf.ConfigName){
+	                bdw:=myApp.NewWindow("请输入百度翻译sdk")
+                    bdwappid:=widget.NewMultiLineEntry()
+					bdwappid.SetPlaceHolder("请填写百度AppId")
+                    bdwsecret:=widget.NewMultiLineEntry()
+					bdwsecret.SetPlaceHolder("请填写百度secret")
+                    bdwappid.SetMinRowsVisible(2)
+                    bdwsecret.SetMinRowsVisible(2)
+                    bdb:=widget.NewButton("保存",func(){
+                        if bdwappid.Text!="" && bdwsecret.Text!=""{
+                            terr:=tools.WriteConfig(bdwappid.Text,bdwsecret.Text)
+                            if terr!=nil{
+                                bdwappid.SetText("保存失败，请稍候重试，或者删除bdsdk.ini重试")
+                            }else{
+                                wetout.SetText("保存成功！！！")
+								tools.BaiDuConfig.AppId = bdwappid.Text
+								tools.BaiDuConfig.AppSec = bdwsecret.Text
+                                bdw.Close()
+                            }
+                        }else{
+                            bdwsecret.SetText("请填写百度sdk密钥和appId")
+                            bdwappid.SetText("请填写百度sdk密钥和appId")
+                        }
+                    })
+                    bdw.SetContent(container.NewVBox(bdwappid,bdwsecret,bdb))
+                    bdw.Resize(fyne.NewSize(200,200))
+                    bdw.Show()
+			    }else{
+					// 方便的话直接从内存取
+                    if tools.BaiDuConfig.AppId=="" || tools.BaiDuConfig.AppSec==""{
+						log.Println("内存未找到，读取配置文件")
+						// 读取文件
+						appID, secret,cerr:=tools.ReadConfig()
+						if cerr!=nil{
+							terr:=tools.DeleteFile(settings.Conf.ConfigName)
+							if terr!=nil{
+                                wetout.SetText("读取配置失败，请手动删除，重新配置！！！")
+							}
+						}
+						tools.BaiDuConfig.AppId = appID
+						tools.BaiDuConfig.AppSec = secret
+					}else{
+						log.Println("内存中存在，从内存取配置文件")
+					}
+					if wetin.Text==""{
+						wetout.SetText("嘿gay,输入内容呀\n")
+						return
+					}
+					wg.Add(1)
+					go tools.DoTransLate(wetin.Text,wetout,wetres)
+					wg.Done()
+					
+
+			    }
+
+            }),
 		)
 		cn := container.NewVBox(wetin, cbox, cboxImg, cboxPro, wetout, wetres)
 		tw.SetContent(cn)

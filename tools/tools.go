@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"fyne.io/fyne/v2/widget"
 	"io"
 	"log"
 	"math/big"
@@ -18,6 +17,10 @@ import (
 	"strings"
 	"time"
 	"unicode"
+	"xiaosheng/settings"
+
+	"fyne.io/fyne/v2/widget"
+	"gopkg.in/ini.v1"
 
 	qrcodeReader "github.com/tuotoo/qrcode"
 	"github.com/xwb1989/sqlparser"
@@ -370,4 +373,85 @@ func GetRandomString(lines []string) (string, error) {
 	randomLine := lines[randomIndex]
 
 	return randomLine, nil
+}
+
+func CreateConfigFile(filename string) (*ini.File, error) {
+    cfg := ini.Empty()
+    if err := cfg.SaveTo(filename); err != nil {
+        log.Printf("无法创建INI文件: %v\n", err)
+        return nil, err
+    }
+    return cfg, nil
+}
+
+// WriteConfig 写入配置文件
+func WriteConfig(appID, secret string) error {
+    filename := settings.Conf.ConfigName // 硬编码的文件名
+	CreateConfigFile(filename)
+
+    // 创建一个新的INI文件
+    cfg, err := ini.Load(filename)
+    if err != nil {
+        log.Printf("无法创建INI文件: %v\n", err)
+        return err
+    }
+
+    // 创建一个新的配置部分（section）
+    section, err := cfg.NewSection("app")
+    if err != nil {
+        log.Printf("无法创建配置部分: %v\n", err)
+        return err
+    }
+
+    // 设置配置项（key-value）
+    section.NewKey("appId", appID)
+    section.NewKey("secret", secret)
+
+    // 保存到文件
+    if err := cfg.SaveTo(filename); err != nil {
+        log.Printf("无法保存INI文件: %v\n", err)
+        return err
+    }
+
+    log.Printf("配置已写入 %s 文件\n", filename)
+    return nil
+}
+
+func FileExists(filename string) bool {
+    _, err := os.Stat(filename)
+    return !os.IsNotExist(err)
+}
+
+func ReadConfig() (string, string, error) {
+    filename := settings.Conf.ConfigName // 硬编码的文件名
+
+    // 加载INI文件
+    cfg, err := ini.Load(filename)
+    if err != nil {
+        log.Printf("无法加载INI文件: %v\n", err)
+        return "", "", err
+    }
+
+    // 获取配置部分
+    section := cfg.Section("app")
+    if section == nil {
+        log.Println("配置部分不存在")
+        return "", "", nil
+    }
+
+    // 读取配置项
+    appID := section.Key("appId").String()
+    secret := section.Key("secret").String()
+
+    return appID, secret, nil
+}
+
+func DeleteFile(filename string) error {
+    err := os.Remove(filename)
+    if err != nil {
+        log.Printf("无法删除文件 %s: %v\n", filename, err)
+        return err
+    }
+    log.Printf("%s 文件已被成功删除\n", filename)
+    return nil
 }

@@ -14,6 +14,7 @@ type Appconfig struct {
 	ToolName    string `mapstructure:"toolName"`
 	ToolMd5     string `mapstructure:"toolMd5"`
 	SoftVersion string `mapstructure:"softVersion"`
+	ConfigName string `mapstructure:"configName"`
 }
 
 func Init(file string) (err error) {
@@ -23,7 +24,8 @@ func Init(file string) (err error) {
 		Conf.DownLoadUrl = "http://powernod.com/u/718433caa9a32077"
 		Conf.ToolName = "小生——QR增强.exe"
 		Conf.ToolMd5 = "77411af8d866d163be773a86dbbe1c24"
-		Conf.SoftVersion = "0.91_test"
+		Conf.SoftVersion = "1.0正式版"
+		Conf.ConfigName = "bdsdk.ini"
 		log.Printf("配置文件 %s 不存在，使用默认配置。\n", file)
 		return nil
 	} else {

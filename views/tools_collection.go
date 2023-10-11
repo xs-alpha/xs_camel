@@ -334,11 +334,12 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					bdwsecret.SetPlaceHolder("请填写百度secret")
                     bdwappid.SetMinRowsVisible(2)
                     bdwsecret.SetMinRowsVisible(2)
+					wl:=widget.NewLabel("")
                     bdb:=widget.NewButton("保存",func(){
                         if bdwappid.Text!="" && bdwsecret.Text!=""{
                             terr:=tools.WriteConfig(bdwappid.Text,bdwsecret.Text)
                             if terr!=nil{
-                                bdwappid.SetText("保存失败，请稍候重试，或者删除bdsdk.ini重试")
+                                wl.SetText("保存失败，请稍候重试，或者删除bdsdk.ini重试")
                             }else{
                                 wetout.SetText("保存成功！！！")
 								tools.BaiDuConfig.AppId = bdwappid.Text
@@ -346,11 +347,10 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
                                 bdw.Close()
                             }
                         }else{
-                            bdwsecret.SetText("请填写百度sdk密钥和appId")
-                            bdwappid.SetText("请填写百度sdk密钥和appId")
+							wl.SetText("请填写百度sdk密钥和appId")
                         }
                     })
-                    bdw.SetContent(container.NewVBox(bdwappid,bdwsecret,bdb))
+                    bdw.SetContent(container.NewVBox(bdwappid,bdwsecret,wl,bdb))
                     bdw.Resize(fyne.NewSize(200,200))
                     bdw.Show()
 			    }else{

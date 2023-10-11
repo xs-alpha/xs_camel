@@ -312,6 +312,12 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 				wetout.SetText("帮您做出了选择：" + randomString)
 				wetres.SetText(randomString)
 			}),
+			widget.NewButton("翻译", func() {
+				log.Println("翻译-input:", wetin.Text)
+				wetout.SetText("")
+				wetres.SetText("")
+				tools.TransLate(wetin.Text, wetout,wetres)
+			}),
 		)
 		cn := container.NewVBox(wetin, cbox, cboxImg, cboxPro, wetout, wetres)
 		tw.SetContent(cn)

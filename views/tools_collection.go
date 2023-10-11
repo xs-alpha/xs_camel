@@ -370,6 +370,10 @@ func CreatToolBtn(myApp fyne.App) fyne.CanvasObject {
 					}else{
 						log.Println("内存中存在，从内存取配置文件")
 					}
+					if tools.BaiDuConfig.AppId==""||tools.BaiDuConfig.AppSec==""{
+						wetout.SetText("配置错误\n")
+						return
+					}
 					if wetin.Text==""{
 						wetout.SetText("嘿gay,输入内容呀\n")
 						return

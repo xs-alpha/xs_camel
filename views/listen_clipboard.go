@@ -22,7 +22,7 @@ var (
 	ShouldLog             bool // 新增标志来表示是否要监听剪贴板
 )
 
-func init() {
+func initBefore() {
 	// 设置中文字体
 	fontPaths := findfont.List()
 	for _, path := range fontPaths {

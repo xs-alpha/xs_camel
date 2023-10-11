@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"xiaosheng/settings"
 	"xiaosheng/views"
+	"xiaosheng/theme"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -26,6 +27,7 @@ func main() {
 	}
 	// 配置窗口
 	myApp := app.New()
+	myApp.Settings().SetTheme(&theme.MyTheme{})
 	icon, _ := fyne.LoadResourceFromPath("main.ico")
 	myApp.SetIcon(icon)
 	myWindow := myApp.NewWindow("小生 开发助手v" + settings.Conf.SoftVersion)

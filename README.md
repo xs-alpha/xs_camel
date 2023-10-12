@@ -22,3 +22,8 @@
 - v0.9彩云小译+百度云翻译
 - v1.0翻译增强 使用百度翻译api,需要自己申请appid和secret
 
+
+# 图片
+[![Snipaste_2023-10-12_08-33-38.png](https://s1.imagehub.cc/images/2023/10/12/Snipaste_2023-10-12_08-33-38.png)](https://www.imagehub.cc/image/1rg5Zd)
+
+[![Snipaste_2023-10-12_08-34-12.png](https://s1.imagehub.cc/images/2023/10/12/Snipaste_2023-10-12_08-34-12.png)](https://www.imagehub.cc/image/1rgDIa)
